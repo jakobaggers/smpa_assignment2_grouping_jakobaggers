@@ -61,11 +61,11 @@ Take a moment to look at the various categories included for each disbursement.
 
 Without doing any analysis yet, what are three questions you might try to answer using this dataset? Write your narrative answers in the spaces below.
 
-1.  
+1.  What disbursement did the Trump campaign spend the most money on?
 
-2.  
+2.  How much money did they spend? How about in total?
 
-3.  
+3.  How did the type of disbursement change over time?
 
 ## Coding Assignment Questions
 
@@ -79,9 +79,13 @@ Without doing any analysis yet, what are three questions you might try to answer
 
 How much was spent in the 2017 vs. 2018 reporting year?
 
+I start with payments, then group by the year, then summarize with the sum of the disbursement amount to get the total.
+
 ```{r}
 
-
+payments %>% 
+  group_by(report_year) %>% 
+  summarize(sum(disbursement_amount))
 
 
 
@@ -91,9 +95,12 @@ How much was spent in the 2017 vs. 2018 reporting year?
 
 Tally the total overall disbursement amounts for each month (distinguishing between say, Oct. 2018 v. Oct. 2019). In which month was spending the highest?
 
+group by both disbursement_month and disbursemeant year, then get the sum for the amount. It looks like January 2017 was the highest.
 ```{r}
 
-
+payments %>% 
+  group_by(disbursement_month, disbursement_year) %>% 
+  summarize(sum(disbursement_amount))
 
 
 
@@ -102,10 +109,13 @@ Tally the total overall disbursement amounts for each month (distinguishing betw
 
 Which recipient (recipient_name) was paid the most in the 2020 election cycle?
 
+Group by receipt name and then summarize the sum of disbursement amount. ABATE MEDIA LLC was paid the most in the 2020 election cylcle.
 ```{r}
 
 
-
+payments %>% 
+  group_by(recipient_name) %>% 
+  summarize(sum(disbursement_amount))
 
 
 
@@ -114,8 +124,13 @@ Which recipient (recipient_name) was paid the most in the 2020 election cycle?
 
 Look at what this recipient was paid for. What service or good (see the "disbursement_description") were they paid the most for?
 
+Filter for that company first, then group. AUDIO VISUAL SERVICES is the what they paid the most for.
 ```{r}
 
+payments %>% 
+  filter(recipient_name == "ABATE MEDIA LLC") %>% 
+  group_by(disbursement_description) %>% 
+  summarize(sum(disbursement_amount))
 
 
 
@@ -125,20 +140,36 @@ Look at what this recipient was paid for. What service or good (see the "disburs
 
 What's the most common category overall (see "disbursement_description") the campaign spent money on?
 
+"MERCHANT FEES" is the most that the campaign spent money on, which is very weird.
 ```{r}
 
+payments %>% 
+  group_by(disbursement_description) %>% 
+  summarize(n = n())
 
-
-
-
+payments %>% 
+  group_by(disbursement_description) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n))
 
 ```
 
 Who were the 5 biggest recipients of campaign spending on "LEGAL CONSULTING"..?
 
+Filter, group, summarize by sum, arrange. The 5 biggest are 
+
+JONES DAY	4390351.66	
+LAROCCA HORNIK ROSEN GREENBERG & BLAHA LLP	404774.48	
+KASOWITZ, BENSON, TORRESS & FRIEDMAN	322614.29	
+THE LAW OFFICES OF ALAN S. FUTERFAS	287924.00	
+MCDERMOTT WILL & EMERY
 ```{r}
 
-
+payments %>% 
+  filter(disbursement_description == "LEGAL CONSULTING") %>% 
+  group_by(recipient_name) %>% 
+  summarize(n = sum(disbursement_amount)) %>% 
+  arrange(desc(n))
 
 
 
@@ -149,9 +180,20 @@ Who were the 5 biggest recipients of campaign spending on "LEGAL CONSULTING"..?
 
 Who are the top 5 individuals (vs. organization) were paid by the campaign committee?
 
+group, summarize, arrange. The top 5 payees are:
+
+GLASSNER	511280.00			
+DOLLMAN	389541.09			
+CENTINELLO	214934.25			
+CARR	160000.00			
+PENCE	104244.03
 ```{r}
 
 
+payments %>% 
+  group_by(payee_last_name) %>% 
+  summarize(n = sum(disbursement_amount)) %>% 
+  arrange(desc(n))
 
 
 
@@ -162,8 +204,20 @@ Who are the top 5 individuals (vs. organization) were paid by the campaign commi
 
 For the indvidual who was paid the most, which payment category (disbursement_description) was the top one for him or her? And how much money were they paid in that category?
 
+The largest expense Glassner was paid was expense type PAYROLL, and they got paid, 499000.00 for that type of expense.
 ```{r}
 
+payments %>% 
+  filter(payee_last_name == "GLASSNER") %>% 
+  group_by(disbursement_description) %>% 
+  summarize(n = n()) %>% 
+  arrange(desc(n))
+
+payments %>% 
+  filter(payee_last_name == "GLASSNER") %>% 
+  group_by(disbursement_description) %>% 
+  summarize(n = sum(disbursement_amount)) %>% 
+  arrange(desc(n))
 
 
 
